@@ -75,11 +75,21 @@ export default{
 	mutations: {
 		addNewGoods(state, goods){
 			state.goods.goodsList.push(goods);
+		},
+		setGoodNumber(state, good){
+			state.goods.goodsList[good.index].number = good.number;
+			state.goods.goodsList[good.index].selectNumber = 0;
+			if(state.goods.goodsList[good.index].number === 0){
+				 state.goods.goodsList.splice(good.index, 1);
+			}
 		}
 	},
 	actions: {
 		addNewGoods({commit}, goods){
 			commit("addNewGoods", goods);
+		},
+		setGoodNumber({commit}, good){
+			commit("setGoodNumber", good);
 		}
 	}
 }

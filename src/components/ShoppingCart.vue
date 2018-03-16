@@ -47,12 +47,17 @@
 			<div class="sum">
 				<span>合计:</span> {{sum}} 元
 			</div>
-			<button type="button" class="btn btn-default btn-sm btn-danger btn-sum">确认结算</button>
+			<button type="button" 
+					class="btn btn-default btn-sm btn-danger btn-sum"
+					@click="confirmSettlement">确认结算</button>
 		</div>
+		<v-success :message="successMessage" @closeSuccessModal="closeSuccess" v-show="showSuccess"></v-success>"
 	</div>
 </template>
 
 <script>
+	import VSuccess from './modal/VSuccess' 
+	
 	export default{
 		name: "ShoppingCart",
 		data(){
@@ -65,7 +70,9 @@
 				allSelect: false,
 				count: 0,
 				sum: 0,
-				lists: this.$store.state.shoppingCart.shoppingCart.shoppingCartList
+				lists: this.$store.state.shoppingCart.shoppingCart.shoppingCartList,
+				showSuccess: false,
+				successMessage: "结算成功"
 			}
 		},
 		computed: {
@@ -73,7 +80,6 @@
 				 var lists = this.$store.state.shoppingCart.shoppingCart.shoppingCartList;
 				  for(var i = 0; i < lists.length; i++){
 				  	lists[i].select = this.allSelect;
-				  	
 				  }
 				  return lists;
 			}
@@ -81,6 +87,64 @@
 		methods: {
 			deleteGood(index){
 				this.$store.commit("deleteShoppingCart", index);
+			},
+			checkCount(){
+				var obj = {};
+				obj.goodsList = [];
+				var good = {};
+				var goodsLists = this.$store.state.goods.goods.goodsList;
+				var self = this;
+				var now = new Date();
+				var year = now.getFullYear();
+				var month = now.getMonth();
+				month < 10? "0" + month : month; 
+				var day = now.getDate();
+				day < 10? "0" + day : day; 
+				var hours = now.getHours();
+				hours < 10? "0" + hours : hours; 
+				var minutes = now.getMinutes();
+				minutes < 10? "0" + minutes : minutes;
+				var time = year + "-" + month + "-" + day + "-" + hours + "-" + minutes;
+				var currentUser = this.$store.state.user.username;
+				obj.time = time;
+				obj.user = currentUser;
+				obj.count = this.count;
+				obj.sum = this.sum;
+				this.shoppingList.forEach(function(element, index){
+					if(element.select){
+						good = {
+							 name: element.name,
+			                 coding: element.coding,
+			                 count: element.count,
+			                 price: element.price,
+			                 total: element.selectNum,
+			                 category: element.category 
+						};
+						obj.goodsList.push(good);
+						element.number -= element.selectNumber;
+						for(var i = 0; i < goodsLists.length; i++){
+							if(goodsLists[i].coding === element.coding){
+								self.$store.commit("setGoodNumber", {
+									index: i,
+									number: element.number
+								});
+								 self.$store.commit("deleteShoppingCart", i);	
+							}
+						}
+					}
+				})
+				this.$store.commit("addCashRegister", obj);
+			},
+			confirmSettlement(){
+				this.checkCount();
+				this.showSuccess = true;
+				console.log(this.$store.state.shoppingCart.shoppingCart)
+				console.log(this.$store.state.cashRegister.cashRegister);
+			},
+			closeSuccess(){
+				console.log(this.$store.state.cashRegister.cashRegister);
+				this.showSuccess = false;
+				this.$router.push({name: "goodsList"});
 			}
 		},
 		watch: {
@@ -97,6 +161,9 @@
 				},
 				deep: true
 			} 
+		},
+		components: {
+			VSuccess
 		}
 	}
 </script>

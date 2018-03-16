@@ -6,6 +6,7 @@ import person from './person'
 import dialog from './dialog'
 import goods from './goods'
 import shoppingCart from './shoppingCart'
+import cashRegister from './cashRegister'
 
 Vue.use(Vuex)
 
@@ -16,6 +17,7 @@ export default new Vuex.Store({
 		person,
 		dialog,
 		goods,
-		shoppingCart
+		shoppingCart,
+		cashRegister
 	}
 })

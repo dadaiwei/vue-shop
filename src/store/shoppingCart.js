@@ -80,11 +80,9 @@ export default{
 	mutations: {
 		addShoppingCart(state, goods){
 			state.shoppingCart.shoppingCartList.push(goods);
-			state.shoppingCart.number += 1;
 		},
 		deleteShoppingCart(state, index){
 			state.shoppingCart.shoppingCartList.splice(index, 1);
-			state.shoppingCart.number -= 1;
 		}
 	},
 	actions: {
